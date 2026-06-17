@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Travel-PA</title>
+    <style>
+        :root {
+            --primary: #0062FF;
+            --primary-light: #EBF2FF;
+            --sidebar-w: 260px;
+            --text: #111827;
+            --muted: #6B7280;
+            --border: #E5E7EB;
+            --bg: #F8FAFC;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); display: flex; min-height: 100vh; color: var(--text); }
+
+        aside {
+            width: var(--sidebar-w); background: white; border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh;
+        }
+        .logo-wrapper { 
+            width: 100%; display: flex; justify-content: center; align-items: center; padding: 28px 0 20px; 
+        }
+        .logo-wrapper img { 
+            width: 150px; height: auto; 
+        }
+        .logo-wrapper .logo-text {
+            font-family: 'Georgia', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+        .menu-links { flex: 1; padding: 8px 16px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+            color: var(--muted); font-weight: 600; font-size: 14px; text-decoration: none;
+            border-radius: 8px; margin-bottom: 4px; cursor: pointer;
+            border: none; background: none; width: 100%;
+        }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-item:hover { background: #F9FAFB; color: var(--text); }
+        .nav-item.active { background: #F0F6FF; color: var(--primary); }
+        .sidebar-footer { padding: 20px 16px; border-top: 1px solid var(--border); }
+        .logout-btn {
+            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+            color: var(--text); font-weight: 600; font-size: 14px;
+            background: none; border: none; cursor: pointer; width: 100%; border-radius: 8px;
+        }
+        .logout-btn svg { width: 20px; height: 20px; }
+        .logout-btn:hover { background: #F9FAFB; }
+
+        main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+        header {
+            height: 72px; background: white; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
+            position: sticky; top: 0; z-index: 10;
+        }
+        .h-left { display: flex; flex-direction: column; justify-content: center; }
+        .h-left .h-name { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; }
+        .h-left .h-role { font-size: 13px; color: var(--muted); margin-top: 2px; }
+        .h-right { display: flex; align-items: center; gap: 20px; }
+        .bell-wrap { position: relative; cursor: pointer; color: #4B5563; display: flex; align-items: center; }
+        .bell-dot { position: absolute; top: -2px; right: -2px; width: 7px; height: 7px; background: var(--primary); border-radius: 50%; border: 1.5px solid white; }
+        .user-profile { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .avatar { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+        .profile-name { font-size: 14px; font-weight: 600; color: var(--text); }
+
+        .content-body { padding: 40px; flex: 1; }
+        .view-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 32px; box-shadow: var(--card-shadow); display: none; }
+        .view-card.active { display: block; }
+        .view-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        .view-head h2 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .view-head p { font-size: 14px; color: var(--muted); }
+        .reports-title-block { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .reports-title-block h2 { font-size: 28px; font-weight: 700; }
+
+        .btn-primary {
+            background: var(--primary); color: white; border: none; padding: 11px 20px;
+            border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: background 0.15s; white-space: nowrap;
+        }
+        .btn-primary:hover { background: #0050d8; }
+        .btn-primary svg { width: 16px; height: 16px; }
+
+        .link-banner {
+            background: #F0F6FF; border: 1px solid #C7DCFF; border-radius: 12px;
+            padding: 18px 22px; margin-bottom: 28px; display: flex;
+            align-items: center; gap: 16px; flex-wrap: wrap;
+        }
+        .link-banner-icon { color: var(--primary); flex-shrink: 0; }
+        .link-banner-icon svg { width: 22px; height: 22px; }
+        .link-banner-text { flex: 1; min-width: 0; }
+        .link-banner-label { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+        .link-banner-row { display: flex; align-items: center; gap: 8px; }
+        .link-banner-input {
+            flex: 1; padding: 9px 13px; border: 1px solid var(--border); border-radius: 7px;
+            font-size: 13px; color: var(--text); background: white; outline: none; min-width: 0; cursor: text;
+        }
+        .btn-copy {
+            background: var(--primary); color: white; border: none; padding: 9px 16px;
+            border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer;
+            white-space: nowrap; transition: background 0.15s; flex-shrink: 0;
+        }
+        .btn-copy:hover { background: #0050d8; }
+        .btn-copy.copied { background: #16a34a; }
+
+        /* New - Feedback Link Banner for Agents */
+        .feedback-link-banner {
+            background: #F0F6FF; border: 1px solid #C7DCFF; border-radius: 12px;
+            padding: 18px 22px; margin-bottom: 28px; display: flex;
+            align-items: center; gap: 16px; flex-wrap: wrap;
+        }
+        .feedback-link-banner .link-banner-icon { color: #7C3AED; flex-shrink: 0; }
+        .feedback-link-banner .link-banner-label { color: #7C3AED; }
+
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 24px; align-items: center; position: relative; }
+        .search-wrap { position: relative; flex: 1; max-width: 320px; }
+        .search-wrap input {
+            width: 100%; padding: 10px 14px 10px 40px;
+            border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none;
+        }
+        .search-wrap input:focus { border-color: var(--primary); }
+        .search-icon { position: absolute; left: 13px; top: 11px; color: #9CA3AF; width: 16px; height: 16px; }
+        .filter-btn {
+            background: white; border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 14px; font-size: 14px; font-weight: 500;
+            display: flex; align-items: center; gap: 7px; cursor: pointer; color: var(--text); white-space: nowrap;
+        }
+        .filter-btn:hover { border-color: #9CA3AF; }
+        .filter-btn svg { width: 14px; height: 14px; }
+        .ml-auto { margin-left: auto; }
+
+        .popover {
+            position: absolute; top: 48px; left: 335px; background: white;
+            border: 1px solid var(--border); border-radius: 12px; width: 240px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08); padding: 16px; z-index: 200; display: none;
+        }
+        .popover.open { display: block; }
+        .popover-label { font-size: 11px; font-weight: 700; color: #4B5563; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+        .pop-opt { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; font-size: 14px; cursor: pointer; }
+        .pop-opt input[type="radio"] { accent-color: var(--primary); width: 16px; height: 16px; }
+        .pop-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .pop-actions button { flex: 1; padding: 8px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .pop-cancel { background: #F3F4F6; color: #4B5563; }
+        .pop-apply  { background: var(--primary); color: white; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #F4F7FC; color: #374151; font-weight: 600; font-size: 13px; padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+        td { padding: 15px 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #FAFBFC; }
+
+        .cell-person { display: flex; align-items: center; gap: 12px; }
+        .circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0; }
+        .c-blue   { background: #E0F2FE; color: #0369A1; }
+        .c-green  { background: #DCFCE7; color: #15803D; }
+        .c-orange { background: #FEF3C7; color: #B45309; }
+        .c-purple { background: #F3E8FF; color: #6B21A8; }
+        .sub-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        .link-cell { display: flex; align-items: center; gap: 6px; max-width: 280px; }
+        .link-cell input { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; color: var(--muted); background: #F9FAFB; outline: none; min-width: 0; cursor: text; }
+        .btn-copy-sm { background: var(--primary-light); color: var(--primary); border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s; flex-shrink: 0; }
+        .btn-copy-sm:hover { background: #D0E8FF; }
+        .btn-copy-sm.copied { background: #DCFCE7; color: #15803D; }
+
+        .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-new       { background: #EFF6FF; color: #1D4ED8; }
+        .badge-contacted { background: #FEF9C3; color: #92400E; }
+        .badge-closed    { background: #DCFCE7; color: #166534; }
+
+        .count-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 22px; padding: 0 8px; background: #EFF6FF; color: #1D4ED8; border-radius: 20px; font-size: 12px; font-weight: 700; }
+
+        .btn-del { border: 1px solid #FCA5A5; color: #EF4444; background: white; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+        .btn-del:hover { background: #FEF2F2; }
+        .btn-del:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-pdf { color: var(--primary); display: inline-flex; align-items: center; }
+        .btn-pdf:hover { color: #0050d8; }
+
+        .table-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .foot-count { font-size: 14px; color: var(--muted); }
+        .pager { display: flex; gap: 6px; }
+        .pager-arrow { padding: 8px 12px; background: white; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; color: var(--muted); }
+        .pager-num { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text); }
+        .pager-num.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .empty-row td { text-align: center; color: #9CA3AF; padding: 40px 16px; font-size: 14px; }
+        .error-row td  { text-align: center; color: #EF4444; padding: 32px 16px; font-size: 14px; }
+
+        .sk td { height: 18px; }
+        .sk td span { display: block; height: 14px; border-radius: 6px; background: linear-gradient(90deg, #F0F2F5 25%, #E4E6EA 50%, #F0F2F5 75%); background-size: 400% 100%; animation: sk 1.4s ease infinite; }
+        @keyframes sk { 0% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9000; align-items: center; justify-content: center; }
+        .overlay.open { display: flex; }
+        .modal { background: white; border-radius: 16px; width: 440px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+        .modal h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .modal .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .field input { width: 100%; padding: 11px 13px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.15s; }
+        .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,255,0.08); }
+        .field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+        .modal-err { font-size: 13px; color: #dc2626; margin-bottom: 12px; display: none; padding: 10px 12px; background: #FEF2F2; border-radius: 6px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+        .btn-cancel { padding: 10px 18px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text); }
+        .btn-cancel:hover { background: #F9FAFB; }
+        .btn-save { padding: 10px 22px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; }
+        .btn-save:hover { background: #0050d8; }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        #toast { position: fixed; bottom: 28px; right: 28px; padding: 13px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; color: white; z-index: 99999; opacity: 0; pointer-events: none; transition: opacity 0.25s; max-width: 340px; }
+        #toast.show { opacity: 1; }
+        #toast.ok  { background: #16a34a; }
+        #toast.err { background: #dc2626; }
+
+        /* ════════════════════════════
+           FEEDBACK STYLES
+           ════════════════════════════ */
+        .fb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .fb-title-block { display: flex; align-items: center; gap: 10px; }
+        .fb-title-block h2 { font-size: 28px; font-weight: 700; color: var(--text); }
+        .fb-title-block svg { color: #7C3AED; }
+
+        /* Stats */
+        .fb-stats { display: flex; gap: 16px; margin-bottom: 28px; }
+        .fb-stat { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+        .fb-stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .fb-stat-icon svg { width: 18px; height: 18px; }
+        .icon-purple { background: #F3E8FF; color: #7C3AED; }
+        .icon-blue   { background: #EFF6FF; color: #1D4ED8; }
+        .icon-green  { background: #DCFCE7; color: #15803D; }
+        .fb-stat-num { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+        .fb-stat-lbl { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+        /* Search */
+        .fb-search-bar { margin-bottom: 20px; }
+        .fb-search-bar .search-wrap { max-width: 380px; }
+
+        /* Agent group */
+        .fb-group { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+        .fb-group-hd {
+            background: #F8FAFC; padding: 14px 20px; display: flex; align-items: center;
+            gap: 12px; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+        .fb-group-hd:hover { background: #F1F5F9; }
+        .fb-group-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+        .fb-group-info { flex: 1; }
+        .fb-group-name { font-size: 14px; font-weight: 700; color: var(--text); }
+        .fb-group-email { font-size: 12px; color: var(--muted); margin-top: 1px; }
+        .fb-group-badge { background: #EFF6FF; color: #1D4ED8; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+        .fb-chevron { color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+        .fb-group.collapsed .fb-chevron { transform: rotate(-90deg); }
+        .fb-group-body { display: block; }
+        .fb-group.collapsed .fb-group-body { display: none; }
+
+        /* Feedback table */
+        .fb-table { width: 100%; border-collapse: collapse; }
+        .fb-table th { background: #FAFBFC; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 20px; border-bottom: 1px solid var(--border); text-align: left; }
+        .fb-table td { padding: 14px 20px; border-bottom: 1px solid #F3F4F6; font-size: 14px; vertical-align: top; }
+        .fb-table tr:last-child td { border-bottom: none; }
+        .fb-table tr:hover td { background: #FAFBFC; }
+        .fb-msg { max-width: 460px; line-height: 1.6; color: var(--text); }
+        .fb-date { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+        /* Empty state */
+        .fb-empty { text-align: center; padding: 60px 20px; color: #9CA3AF; font-size: 14px; }
+        .fb-empty svg { display: block; margin: 0 auto 12px; color: #D1D5DB; }
+
+        /* Skeleton */
+        .fb-sk { height: 58px; border-radius: 12px; background: linear-gradient(90deg, #F0F2F5 25%, #E4E6EA 50%, #F0F2F5 75%); background-size: 400% 100%; animation: sk 1.4s ease infinite; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+<!-- ════════════ SIDEBAR ════════════ -->
+<aside>
+    <div class="logo-wrapper">
+        <img src="/logo.png" alt="Travel-PA" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'logo-text\'>TRAVEL-PA</span>'">
+    </div>
+    <nav class="menu-links">
+        <button class="nav-item active" id="navAgents" onclick="showView('agents')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            Agents
+        </button>
+        <button class="nav-item" id="navReports" onclick="showView('reports')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            Reports
+        </button>
+
+        <!-- ── FEEDBACK NAV (visible to both admin and agent) ── -->
+        <button class="nav-item" id="navFeedback" onclick="showView('feedback')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+            Feedback
+        </button>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logout()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            Log out
+        </button>
+    </div>
+</aside>
+
+<!-- ════════════ MAIN ════════════ -->
+<main>
+    <header>
+        <div class="h-left">
+            <span class="h-name" id="hName">Dashboard</span>
+            <span class="h-role" id="hRole">Loading…</span>
+        </div>
+        <div class="h-right">
+            <div class="bell-wrap">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                <div class="bell-dot"></div>
+            </div>
+            <div class="user-profile">
+                <div class="avatar" id="avatar">A</div>
+                <div class="profile-name" id="profileName">Admin</div>
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-body">
+
+        <!-- ── AGENTS VIEW ── -->
+        <div id="viewAgents" class="view-card active">
+            <div class="view-head">
+                <div>
+                    <h2>Agents</h2>
+                    <p>Manage agents and share their unique client intake links.</p>
+                </div>
+                <button class="btn-primary" onclick="openModal()">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add Agent
+                </button>
+            </div>
+            <div class="filter-bar">
+                <div class="search-wrap">
+                    <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input id="agentSearch" type="text" placeholder="Search agents…" oninput="filterAgents()">
+                </div>
+                <button class="filter-btn" onclick="togglePopover()">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    No. of Customers
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button class="filter-btn" onclick="toggleSort()" title="Sort A–Z / Z–A">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                </button>
+                <button class="filter-btn ml-auto" onclick="clearFilters()">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                    Clear Filters
+                </button>
+                <div class="popover" id="popover">
+                    <div class="popover-label">Filter by No. of Customers</div>
+                    <label class="pop-opt"><input type="radio" name="cf" value="all" checked> All</label>
+                    <label class="pop-opt"><input type="radio" name="cf" value="0-10">  0 – 10</label>
+                    <label class="pop-opt"><input type="radio" name="cf" value="11-25"> 11 – 25</label>
+                    <label class="pop-opt"><input type="radio" name="cf" value="26-50"> 26 – 50</label>
+                    <label class="pop-opt"><input type="radio" name="cf" value="51+">   51+</label>
+                    <div class="pop-actions">
+                        <button class="pop-cancel" onclick="togglePopover()">Cancel</button>
+                        <button class="pop-apply"  onclick="applyFilter()">Apply</button>
+                    </div>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th><th>Agent</th><th>No. of Customers</th><th>Client Intake Link</th><th style="text-align:right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="agentsBody"></tbody>
+            </table>
+            <div class="table-foot">
+                <span class="foot-count" id="agentCount">Showing 0 to 0 of 0 agents</span>
+                <div class="pager">
+                    <button class="pager-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+                    <button class="pager-num active">1</button>
+                    <button class="pager-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── REPORTS VIEW ── -->
+        <div id="viewReports" class="view-card">
+            <div class="link-banner" id="agentLinkBanner" style="display:none">
+                <div class="link-banner-icon">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                </div>
+                <div class="link-banner-text">
+                    <div class="link-banner-label">Your Client Intake Link — Share this with clients</div>
+                    <div class="link-banner-row">
+                        <input type="text" id="agentLinkInput" class="link-banner-input" readonly placeholder="Loading your link…">
+                        <button class="btn-copy" id="agentLinkCopyBtn" onclick="copyAgentLink()">Copy Link</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Agent Feedback Link Banner -->
+            <div class="feedback-link-banner" id="agentFeedbackBanner" style="display:none">
+                <div class="link-banner-icon">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                </div>
+                <div class="link-banner-text">
+                    <div class="link-banner-label">Your Client Feedback Link — Share this with clients</div>
+                    <div class="link-banner-row">
+                        <input type="text" id="agentFeedbackLinkInput" class="link-banner-input" readonly placeholder="Loading your feedback link…">
+                        <button class="btn-copy" id="agentFeedbackCopyBtn" onclick="copyAgentFeedbackLink()">Copy Link</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reports-title-block">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                <h2>Reports</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>No.</th><th>Client</th><th>Destination</th><th>Budget</th><th>Travel Date</th><th>Status</th><th>Submitted</th><th style="text-align:right">Report</th></tr>
+                </thead>
+                <tbody id="reportsBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ════════════════════════════════
+             FEEDBACK VIEW — ADMIN & AGENT
+             ════════════════════════════════ -->
+        <div id="viewFeedback" class="view-card">
+
+            <!-- Header -->
+            <div class="fb-header">
+                <div class="fb-title-block">
+                    <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                    </svg>
+                    <h2>Client Feedback</h2>
+                </div>
+                <button class="btn-primary" onclick="refreshFeedback()">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="fb-stats">
+                <div class="fb-stat">
+                    <div class="fb-stat-icon icon-purple">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    </div>
+                    <div>
+                        <div class="fb-stat-num" id="fbTotal">—</div>
+                        <div class="fb-stat-lbl">Total Feedback</div>
+                    </div>
+                </div>
+                <div class="fb-stat">
+                    <div class="fb-stat-icon icon-blue">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <div>
+                        <div class="fb-stat-num" id="fbAgents">—</div>
+                        <div class="fb-stat-lbl">Agents with Feedback</div>
+                    </div>
+                </div>
+                <div class="fb-stat">
+                    <div class="fb-stat-icon icon-green">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                        <div class="fb-stat-num" id="fbMonth">—</div>
+                        <div class="fb-stat-lbl">This Month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="fb-search-bar filter-bar">
+                <div class="search-wrap">
+                    <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input id="fbSearch" type="text" placeholder="Search by agent, client or message…" oninput="filterFeedback()">
+                </div>
+            </div>
+
+            <!-- Groups container -->
+            <div id="fbGroups"></div>
+
+        </div>
+        <!-- end viewFeedback -->
+
+    </div>
+</main>
+
+<!-- ════════════ ADD AGENT MODAL ════════════ -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+    <div class="modal" id="modal">
+        <h2>Add New Agent</h2>
+        <p class="subtitle">The agent will use these credentials to log in securely.</p>
+        <div class="field"><label for="fName">Full Name</label><input id="fName" type="text" placeholder="e.g. Sarah Johnson" autocomplete="off"></div>
+        <div class="field"><label for="fEmail">Login Email</label><input id="fEmail" type="email" placeholder="agent@yourcompany.com" autocomplete="off"></div>
+        <div class="field">
+            <label for="fPass">Password</label>
+            <input id="fPass" type="password" placeholder="Min. 8 characters">
+            <div class="field-hint">This is what the agent will type on the login page.</div>
+        </div>
+        <div class="field"><label for="fPass2">Confirm Password</label><input id="fPass2" type="password" placeholder="Repeat password"></div>
+        <div class="modal-err" id="modalErr"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save" id="saveBtn" onclick="saveAgent()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Save Agent
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Session ──
+const TOKEN       = localStorage.getItem('crm_token');
+const ROLE        = localStorage.getItem('crm_role');
+const AGENT_EMAIL = new URLSearchParams(location.search).get('email');
+const IS_AGENT    = ROLE === 'agent' || !!AGENT_EMAIL;
+const COLORS      = ['c-blue', 'c-green', 'c-orange', 'c-purple'];
+
+if (!TOKEN) location.href = '/admin/login.html';
+
+let allAgents   = [];
+let allFeedback = [];
+let sortAsc     = true;
+let fbLoaded    = false;
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+    if (IS_AGENT) {
+        document.getElementById('navAgents').style.display = 'none';
+        const label = AGENT_EMAIL ? AGENT_EMAIL.split('@')[0] : 'Agent';
+        document.getElementById('hName').textContent        = label;
+        document.getElementById('hRole').textContent        = 'Agent';
+        document.getElementById('avatar').textContent       = label[0].toUpperCase();
+        document.getElementById('profileName').textContent  = label;
+        document.getElementById('agentLinkBanner').style.display = 'flex';
+        document.getElementById('agentFeedbackBanner').style.display = 'flex';
+        loadAgentLink();
+        loadAgentFeedbackLink();
+        showView('reports');
+    } else {
+        document.getElementById('hName').textContent       = 'Admin';
+        document.getElementById('hRole').textContent       = 'Workspace';
+        document.getElementById('avatar').textContent      = 'A';
+        document.getElementById('profileName').textContent = 'Admin';
+        showView('agents');
+    }
+    loadAll();
+});
+
+// ── Navigation ──
+function showView(v) {
+    ['agents','reports','feedback'].forEach(id => {
+        const card = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
+        if (card) card.classList.toggle('active', id === v);
+        const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
+        if (nav && nav.style.display !== 'none') nav.classList.toggle('active', id === v);
+    });
+    // Lazy-load feedback on first open
+    if (v === 'feedback' && !fbLoaded) {
+        if (IS_AGENT) {
+            loadAgentFeedback();
+        } else {
+            loadFeedback();
+        }
+    }
+}
+
+function logout() { localStorage.clear(); location.href = '/admin/login.html'; }
+
+// ── Load all data ──
+async function loadAll() {
+    const H = { 'Authorization': `Bearer ${TOKEN}` };
+    if (!IS_AGENT) {
+        skeleton('agentsBody', 5, 5);
+        try {
+            const r = await fetch('/api/admin/agents', { headers: H });
+            const j = await r.json();
+            if (j.success) { allAgents = j.data; renderAgents(allAgents); }
+            else tableError('agentsBody', 5, j.message);
+        } catch { tableError('agentsBody', 5, 'Could not reach the server.'); }
+    }
+    skeleton('reportsBody', 8, 6);
+    try {
+        const url = IS_AGENT ? `/api/agent/leads?email=${encodeURIComponent(AGENT_EMAIL)}` : '/api/admin/leads';
+        const r = await fetch(url, { headers: H });
+        const j = await r.json();
+        if (j.success) renderReports(j.data);
+        else tableError('reportsBody', 8, j.message);
+    } catch { tableError('reportsBody', 8, 'Could not reach the server.'); }
+}
+
+// ── Agent Feedback Link ──
+async function loadAgentFeedbackLink() {
+    try {
+        const baseUrl = window.location.origin;
+        // UPDATED: Changed from /feedback/feedback.html to /client/feedback.html
+        const feedbackLink = `${baseUrl}/client/feedback.html?agent=${encodeURIComponent(AGENT_EMAIL)}`;
+        document.getElementById('agentFeedbackLinkInput').value = feedbackLink;
+    } catch {
+        document.getElementById('agentFeedbackLinkInput').value = 'Could not load feedback link.';
+    }
+}
+
+function copyAgentFeedbackLink() {
+    const input = document.getElementById('agentFeedbackLinkInput');
+    const btn   = document.getElementById('agentFeedbackCopyBtn');
+    if (!input.value) return;
+    navigator.clipboard.writeText(input.value).then(() => {
+        btn.textContent = 'Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy Link'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+
+// ════════════════════════════════════════
+// FEEDBACK - ADMIN
+// ════════════════════════════════════════
+async function loadFeedback() {
+    fbLoaded = true;
+    const H = { 'Authorization': `Bearer ${TOKEN}` };
+    const container = document.getElementById('fbGroups');
+
+    // Show skeletons
+    container.innerHTML = `
+        <div class="fb-sk"></div>
+        <div class="fb-sk"></div>
+        <div class="fb-sk"></div>`;
+    ['fbTotal','fbAgents','fbMonth'].forEach(id => document.getElementById(id).textContent = '—');
+
+    try {
+        const r = await fetch('/api/admin/feedback', { headers: H });
+        const j = await r.json();
+        if (!j.success) throw new Error(j.message || 'Failed to load feedback.');
+        allFeedback = j.data || [];
+        renderFeedback(allFeedback);
+    } catch (err) {
+        container.innerHTML = `<div class="fb-empty" style="color:#EF4444">${esc(err.message)}</div>`;
+    }
+}
+
+function renderFeedback(list) {
+    const container = document.getElementById('fbGroups');
+    const now = new Date();
+
+    // Stats
+    const thisMonth = list.filter(f => {
+        const d = new Date(f.submitted_at || f.created_at);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }).length;
+
+    // Group by agent
+    const groups = {};
+    list.forEach(f => {
+        const key = f.agent_id || f.agent_email || 'unknown';
+        if (!groups[key]) groups[key] = { name: f.agent_name || 'Unknown Agent', email: f.agent_email || '—', items: [] };
+        groups[key].items.push(f);
+    });
+    const agentKeys = Object.keys(groups);
+
+    document.getElementById('fbTotal').textContent  = list.length;
+    document.getElementById('fbAgents').textContent = agentKeys.length;
+    document.getElementById('fbMonth').textContent  = thisMonth;
+
+    if (!list.length) {
+        container.innerHTML = `
+            <div class="fb-empty">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+                No client feedback has been submitted yet.
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = agentKeys.map((key, gi) => {
+        const g   = groups[key];
+        const col = COLORS[gi % COLORS.length];
+        const ini = initials(g.name);
+        return `
+        <div class="fb-group" id="fbg-${gi}">
+            <div class="fb-group-hd" onclick="toggleFbGroup(${gi})">
+                <div class="fb-group-avatar ${col}">${ini}</div>
+                <div class="fb-group-info">
+                    <div class="fb-group-name">${esc(g.name)}</div>
+                    <div class="fb-group-email">${esc(g.email)}</div>
+                </div>
+                <span class="fb-group-badge">${g.items.length} feedback</span>
+                <svg class="fb-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+            <div class="fb-group-body">
+                <table class="fb-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${g.items.map(f => {
+                            const date = (f.submitted_at || f.created_at)
+                                ? new Date(f.submitted_at || f.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                                : '—';
+                            return `<tr>
+                                <td>
+                                    <div style="font-weight:600">${esc(f.client_name || 'Client')}</div>
+                                    <div class="sub-email">${esc(f.client_email || '')}</div>
+                                </td>
+                                <td><div class="fb-msg">${esc(f.message || f.feedback || '')}</div></td>
+                                <td><div class="fb-date">${date}</div></td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleFbGroup(gi) {
+    document.getElementById('fbg-' + gi).classList.toggle('collapsed');
+}
+
+// ════════════════════════════════════════
+// FEEDBACK - AGENT
+// ════════════════════════════════════════
+async function loadAgentFeedback() {
+    fbLoaded = true;
+    const H = { 'Authorization': `Bearer ${TOKEN}` };
+    const container = document.getElementById('fbGroups');
+    
+    // Show skeletons
+    container.innerHTML = `
+        <div class="fb-sk"></div>
+        <div class="fb-sk"></div>
+        <div class="fb-sk"></div>`;
+    ['fbTotal','fbAgents','fbMonth'].forEach(id => document.getElementById(id).textContent = '—');
+    
+    try {
+        const r = await fetch(`/api/agent/feedback?email=${encodeURIComponent(AGENT_EMAIL)}`, { headers: H });
+        const j = await r.json();
+        if (!j.success) throw new Error(j.message || 'Failed to load feedback.');
+        allFeedback = j.data || [];
+        renderAgentFeedback(allFeedback);
+    } catch (err) {
+        container.innerHTML = `<div class="fb-empty" style="color:#EF4444">${esc(err.message)}</div>`;
+    }
+}
+
+function renderAgentFeedback(list) {
+    const container = document.getElementById('fbGroups');
+    const now = new Date();
+    
+    // Stats
+    const thisMonth = list.filter(f => {
+        const d = new Date(f.submitted_at || f.created_at);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }).length;
+    
+    document.getElementById('fbTotal').textContent = list.length;
+    document.getElementById('fbAgents').textContent = '—'; // Not relevant for agent
+    document.getElementById('fbMonth').textContent = thisMonth;
+    
+    if (!list.length) {
+        container.innerHTML = `
+            <div class="fb-empty">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+                No client feedback has been submitted yet.
+            </div>`;
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="fb-group">
+            <div class="fb-group-hd" style="cursor:default">
+                <div class="fb-group-avatar ${COLORS[0]}">${initials('Your Clients')}</div>
+                <div class="fb-group-info">
+                    <div class="fb-group-name">Your Client Feedback</div>
+                    <div class="fb-group-email">${list.length} feedback messages</div>
+                </div>
+                <span class="fb-group-badge">${list.length}</span>
+            </div>
+            <div class="fb-group-body">
+                <table class="fb-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${list.map(f => {
+                            const date = (f.submitted_at || f.created_at)
+                                ? new Date(f.submitted_at || f.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                                : '—';
+                            return `<tr>
+                                <td>
+                                    <div style="font-weight:600">${esc(f.client_name || 'Client')}</div>
+                                    <div class="sub-email">${esc(f.client_email || '')}</div>
+                                </td>
+                                <td><div class="fb-msg">${esc(f.message || f.feedback || '')}</div></td>
+                                <td><div class="fb-date">${date}</div></td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+}
+
+function refreshFeedback() {
+    fbLoaded = false;
+    if (IS_AGENT) {
+        loadAgentFeedback();
+    } else {
+        loadFeedback();
+    }
+}
+
+// ── Filter feedback ──
+function filterFeedback() {
+    const q = document.getElementById('fbSearch').value.toLowerCase().trim();
+    if (!q) { 
+        if (IS_AGENT) {
+            renderAgentFeedback(allFeedback);
+        } else {
+            renderFeedback(allFeedback);
+        }
+        return; 
+    }
+    const filtered = allFeedback.filter(f =>
+        (f.agent_name   || '').toLowerCase().includes(q) ||
+        (f.agent_email  || '').toLowerCase().includes(q) ||
+        (f.client_name  || '').toLowerCase().includes(q) ||
+        (f.client_email || '').toLowerCase().includes(q) ||
+        (f.message || f.feedback || '').toLowerCase().includes(q)
+    );
+    if (IS_AGENT) {
+        renderAgentFeedback(filtered);
+    } else {
+        renderFeedback(filtered);
+    }
+}
+
+// ── Render agents ──
+function renderAgents(list) {
+    const tbody = document.getElementById('agentsBody');
+    const count = document.getElementById('agentCount');
+    const n = list.length;
+    count.textContent = n > 0 ? `Showing 1 to ${n} of ${n} agent${n !== 1 ? 's' : ''}` : 'Showing 0 to 0 of 0 agents';
+    if (!n) { tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No agents yet. Click "Add Agent" to create one.</td></tr>`; return; }
+    tbody.innerHTML = list.map((a, i) => {
+        const col = COLORS[i % COLORS.length];
+        const ini = initials(a.name || 'AG');
+        const cnt = typeof a.client_count === 'number' ? a.client_count : 0;
+        const link = a.intakeLink || '';
+        return `<tr>
+            <td style="color:var(--muted)">${i + 1}</td>
+            <td><div class="cell-person"><div class="circle ${col}">${ini}</div><div><strong>${esc(a.name)}</strong><div class="sub-email">${esc(a.email)}</div></div></div></td>
+            <td><span class="count-pill">${cnt}</span></td>
+            <td><div class="link-cell"><input type="text" id="link-input-${a.id}" value="${esc(link)}" readonly title="${esc(link)}"><button class="btn-copy-sm" id="link-btn-${a.id}" onclick="copyIntakeLink('${a.id}')">Copy</button></div></td>
+            <td style="text-align:right">
+                <button class="btn-del" id="del-${a.id}" onclick="deleteAgent('${a.id}','${esc(a.name)}')">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Delete
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ── Render reports ──
+function renderReports(list) {
+    const tbody = document.getElementById('reportsBody');
+    if (!list.length) { tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No pipeline reports compiled yet.</td></tr>`; return; }
+    tbody.innerHTML = list.map((lead, i) => {
+        const col    = COLORS[i % COLORS.length];
+        const ini    = initials(lead.name || 'CL');
+        const date   = lead.created_at ? new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+        const tdate  = lead.travel_date || '—';
+        // Fix: Handle budget properly - check if it's a number or string
+        let budget = '—';
+        if (lead.budget) {
+            const numBudget = parseFloat(lead.budget);
+            if (!isNaN(numBudget) && numBudget > 0) {
+                budget = `£${numBudget.toLocaleString()}`;
+            } else {
+                budget = lead.budget; // Show as is if not a number
+            }
+        }
+        const dest   = esc(lead.destination || lead.concept || '—');
+        const st     = lead.status || 'new';
+        const stClass = st === 'closed' ? 'badge-closed' : st === 'contacted' ? 'badge-contacted' : 'badge-new';
+        const pdf    = lead.reportFile ? `/${lead.reportFile}` : null;
+        return `<tr>
+            <td style="color:var(--muted)">${i + 1}</td>
+            <td><div class="cell-person"><div class="circle ${col}">${ini}</div><div><strong>${esc(lead.name || 'Client')}</strong><div class="sub-email">${esc(lead.email || '')}</div></div></div></td>
+            <td>${dest}</td><td>${budget}</td><td>${esc(tdate)}</td>
+            <td><span class="badge ${stClass}">${st}</span></td>
+            <td style="color:var(--muted);font-size:13px">${date}</td>
+            <td style="text-align:right">${pdf
+                ? `<a href="${pdf}" target="_blank" class="btn-pdf"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></a>`
+                : `<span style="color:#D1D5DB;font-size:12px">—</span>`}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ── Agent link helpers ──
+async function loadAgentLink() {
+    try {
+        const r = await fetch(`/api/agent/link?email=${encodeURIComponent(AGENT_EMAIL)}`, { headers: { 'Authorization': `Bearer ${TOKEN}` } });
+        const j = await r.json();
+        if (j.success) document.getElementById('agentLinkInput').value = j.link;
+    } catch { document.getElementById('agentLinkInput').value = 'Could not load link.'; }
+}
+function copyAgentLink() {
+    const input = document.getElementById('agentLinkInput');
+    const btn   = document.getElementById('agentLinkCopyBtn');
+    if (!input.value) return;
+    navigator.clipboard.writeText(input.value).then(() => {
+        btn.textContent = 'Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy Link'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+function copyIntakeLink(agentId) {
+    const input = document.getElementById(`link-input-${agentId}`);
+    const btn   = document.getElementById(`link-btn-${agentId}`);
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(() => {
+        btn.textContent = 'Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+
+// ── Delete agent ──
+async function deleteAgent(id, name) {
+    if (!confirm(`Remove agent "${name}"?\n\nAll their client records will also be deleted.`)) return;
+    const btn = document.getElementById(`del-${id}`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Removing…'; }
+    try {
+        const r = await fetch(`/api/admin/agents/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${TOKEN}` } });
+        const j = await r.json();
+        if (j.success) { toast(`Agent "${name}" removed.`, 'ok'); loadAll(); }
+        else { toast(j.message || 'Failed to delete.', 'err'); if (btn) { btn.disabled = false; btn.textContent = 'Delete'; } }
+    } catch { toast('Network error. Try again.', 'err'); if (btn) { btn.disabled = false; btn.textContent = 'Delete'; } }
+}
+
+// ── Modal ──
+function openModal() {
+    ['fName','fEmail','fPass','fPass2'].forEach(id => document.getElementById(id).value = '');
+    const e = document.getElementById('modalErr');
+    e.style.display = 'none'; e.textContent = '';
+    document.getElementById('overlay').classList.add('open');
+    setTimeout(() => document.getElementById('fName').focus(), 50);
+}
+function closeModal()    { document.getElementById('overlay').classList.remove('open'); }
+function overlayClick(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter' && document.getElementById('overlay').classList.contains('open')) saveAgent();
+});
+
+// ── Save agent ──
+async function saveAgent() {
+    const name  = document.getElementById('fName').value.trim();
+    const email = document.getElementById('fEmail').value.trim();
+    const pass  = document.getElementById('fPass').value;
+    const pass2 = document.getElementById('fPass2').value;
+    const errEl = document.getElementById('modalErr');
+    const btn   = document.getElementById('saveBtn');
+    const setErr = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
+    errEl.style.display = 'none';
+    if (!name)                          return setErr('Full name is required.');
+    if (!email || !email.includes('@')) return setErr('A valid email address is required.');
+    if (!pass)                          return setErr('Password is required.');
+    if (pass.length < 8)                return setErr('Password must be at least 8 characters.');
+    if (pass !== pass2)                 return setErr('Passwords do not match.');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+        const r = await fetch('/api/admin/agents', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+            body: JSON.stringify({ name, email, password: pass })
+        });
+        const j = await r.json();
+        if (j.success) { closeModal(); toast(`Agent "${name}" added! They can now log in.`, 'ok'); loadAll(); }
+        else setErr(j.message || 'Failed to create agent.');
+    } catch { setErr('Network error. Please try again.'); }
+    finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save Agent`;
+    }
+}
+// ── Filter & sort ──
+function togglePopover() { document.getElementById('popover').classList.toggle('open'); }
+function applyFilter() {
+    const val = document.querySelector('input[name="cf"]:checked')?.value || 'all';
+    togglePopover();
+    if (val === 'all') { renderAgents(allAgents); return; }
+    const [lo, hi] = val === '51+' ? [51, Infinity] : val.split('-').map(Number);
+    renderAgents(allAgents.filter(a => { const c = a.client_count || 0; return c >= lo && c <= hi; }));
+}
+function filterAgents() {
+    const q = document.getElementById('agentSearch').value.toLowerCase();
+    renderAgents(allAgents.filter(a => (a.name||'').toLowerCase().includes(q) || (a.email||'').toLowerCase().includes(q)));
+}
+function toggleSort() {
+    sortAsc = !sortAsc;
+    renderAgents([...allAgents].sort((a,b) => sortAsc ? (a.name||'').localeCompare(b.name||'') : (b.name||'').localeCompare(a.name||'')));
+}
+function clearFilters() {
+    document.getElementById('agentSearch').value = '';
+    document.querySelector('input[name="cf"][value="all"]').checked = true;
+    sortAsc = true;
+    renderAgents(allAgents);
+}
+document.addEventListener('click', e => {
+    const pop = document.getElementById('popover');
+    if (pop.classList.contains('open') && !pop.contains(e.target) && !e.target.closest('[onclick="togglePopover()"]'))
+        pop.classList.remove('open');
+});
+
+// ── Helpers ──
+function initials(name) { return name.trim().split(/\s+/).map(n=>n[0]).join('').substring(0,2).toUpperCase(); }
+function esc(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `show ${type}`;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.className = '', 3800);
+}
+function skeleton(id, cols, rows) {
+    document.getElementById(id).innerHTML = Array(rows).fill(0).map(() =>
+        `<tr class="sk">${Array(cols).fill(0).map(()=>`<td><span></span></td>`).join('')}</tr>`
+    ).join('');
+}
+function tableError(id, cols, msg) {
+    document.getElementById(id).innerHTML = `<tr class="error-row"><td colspan="${cols}">${esc(msg)}</td></tr>`;
+}
+</script>
+</body>
+</html>
