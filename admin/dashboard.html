@@ -87,6 +87,15 @@
         .btn-primary:hover { background: #0050d8; }
         .btn-primary svg { width: 16px; height: 16px; }
 
+        /* CSV Download Button */
+        .btn-csv {
+            background: #0f5caf; color: white; border: none; padding: 11px 20px;
+            border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: background 0.15s; white-space: nowrap;
+        }
+        .btn-csv:hover { background: #15803d; }
+        .btn-csv svg { width: 16px; height: 16px; }
+
         .link-banner {
             background: #F0F6FF; border: 1px solid #C7DCFF; border-radius: 12px;
             padding: 18px 22px; margin-bottom: 28px; display: flex;
@@ -109,7 +118,7 @@
         .btn-copy:hover { background: #0050d8; }
         .btn-copy.copied { background: #16a34a; }
 
-        /* New - Feedback Link Banner for Agents */
+        /* Feedback Link Banner for Agents */
         .feedback-link-banner {
             background: #F0F6FF; border: 1px solid #C7DCFF; border-radius: 12px;
             padding: 18px 22px; margin-bottom: 28px; display: flex;
@@ -227,6 +236,8 @@
         .fb-title-block h2 { font-size: 28px; font-weight: 700; color: var(--text); }
         .fb-title-block svg { color: #7C3AED; }
 
+        .fb-header-actions { display: flex; gap: 10px; align-items: center; }
+
         /* Stats */
         .fb-stats { display: flex; gap: 16px; margin-bottom: 28px; }
         .fb-stat { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
@@ -269,6 +280,17 @@
         .fb-msg { max-width: 460px; line-height: 1.6; color: var(--text); }
         .fb-date { font-size: 12px; color: var(--muted); white-space: nowrap; }
 
+        /* Star ratings in feedback */
+        .fb-stars {
+            display: flex; gap: 2px; align-items: center;
+        }
+        .fb-stars svg {
+            width: 14px; height: 14px; fill: #F59E0B; stroke: #F59E0B; stroke-width: 1;
+        }
+        .fb-stars .star-empty svg {
+            fill: #D1D5DB; stroke: #D1D5DB;
+        }
+
         /* Empty state */
         .fb-empty { text-align: center; padding: 60px 20px; color: #9CA3AF; font-size: 14px; }
         .fb-empty svg { display: block; margin: 0 auto 12px; color: #D1D5DB; }
@@ -282,7 +304,7 @@
 <!-- ════════════ SIDEBAR ════════════ -->
 <aside>
     <div class="logo-wrapper">
-        <img src="/logo.png" alt="Travel-PA" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'logo-text\'>TRAVEL-PA</span>'">
+        <img src="../assets/logo.png" alt="Travel-PA" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'logo-text\'>TRAVEL-PA</span>'">
     </div>
     <nav class="menu-links">
         <button class="nav-item active" id="navAgents" onclick="showView('agents')">
@@ -298,7 +320,7 @@
             Reports
         </button>
 
-        <!-- ── FEEDBACK NAV (visible to both admin and agent) ── -->
+        <!-- ── FEEDBACK NAV ── -->
         <button class="nav-item" id="navFeedback" onclick="showView('feedback')">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
@@ -421,7 +443,7 @@
                 </div>
             </div>
 
-            <!-- NEW: Agent Feedback Link Banner -->
+            <!-- Agent Feedback Link Banner -->
             <div class="feedback-link-banner" id="agentFeedbackBanner" style="display:none">
                 <div class="link-banner-icon">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
@@ -435,10 +457,7 @@
                 </div>
             </div>
 
-            <div class="reports-title-block">
-                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                <h2>Reports</h2>
-            </div>
+            <!-- Reports Table - Removed duplicate heading -->
             <table>
                 <thead>
                     <tr><th>No.</th><th>Client</th><th>Destination</th><th>Budget</th><th>Travel Date</th><th>Status</th><th>Submitted</th><th style="text-align:right">Report</th></tr>
@@ -448,7 +467,7 @@
         </div>
 
         <!-- ════════════════════════════════
-             FEEDBACK VIEW — ADMIN & AGENT
+             FEEDBACK VIEW
              ════════════════════════════════ -->
         <div id="viewFeedback" class="view-card">
 
@@ -460,12 +479,20 @@
                     </svg>
                     <h2>Client Feedback</h2>
                 </div>
-                <button class="btn-primary" onclick="refreshFeedback()">
-                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    Refresh
-                </button>
+                <div class="fb-header-actions">
+                    <button class="btn-csv" onclick="downloadFeedbackCSV()">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download CSV
+                    </button>
+                    <button class="btn-primary" onclick="refreshFeedback()">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
             </div>
 
             <!-- Stats strip -->
@@ -591,7 +618,6 @@ function showView(v) {
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
         if (nav && nav.style.display !== 'none') nav.classList.toggle('active', id === v);
     });
-    // Lazy-load feedback on first open
     if (v === 'feedback' && !fbLoaded) {
         if (IS_AGENT) {
             loadAgentFeedback();
@@ -629,7 +655,6 @@ async function loadAll() {
 async function loadAgentFeedbackLink() {
     try {
         const baseUrl = window.location.origin;
-        // UPDATED: Changed from /feedback/feedback.html to /client/feedback.html
         const feedbackLink = `${baseUrl}/client/feedback.html?agent=${encodeURIComponent(AGENT_EMAIL)}`;
         document.getElementById('agentFeedbackLinkInput').value = feedbackLink;
     } catch {
@@ -655,7 +680,6 @@ async function loadFeedback() {
     const H = { 'Authorization': `Bearer ${TOKEN}` };
     const container = document.getElementById('fbGroups');
 
-    // Show skeletons
     container.innerHTML = `
         <div class="fb-sk"></div>
         <div class="fb-sk"></div>
@@ -673,17 +697,27 @@ async function loadFeedback() {
     }
 }
 
+function renderStars(rating) {
+    let stars = '';
+    for (let i = 0; i < 5; i++) {
+        if (i < Math.round(rating)) {
+            stars += `<svg viewBox="0 0 24 24"><polygon points="12 2 15 8.5 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 9 8.5"/></svg>`;
+        } else {
+            stars += `<svg viewBox="0 0 24 24" style="fill:#D1D5DB;stroke:#D1D5DB;"><polygon points="12 2 15 8.5 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 9 8.5"/></svg>`;
+        }
+    }
+    return stars;
+}
+
 function renderFeedback(list) {
     const container = document.getElementById('fbGroups');
     const now = new Date();
 
-    // Stats
     const thisMonth = list.filter(f => {
         const d = new Date(f.submitted_at || f.created_at);
         return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     }).length;
 
-    // Group by agent
     const groups = {};
     list.forEach(f => {
         const key = f.agent_id || f.agent_email || 'unknown';
@@ -729,6 +763,7 @@ function renderFeedback(list) {
                     <thead>
                         <tr>
                             <th>Client</th>
+                            <th>Ratings</th>
                             <th>Message</th>
                             <th>Date</th>
                         </tr>
@@ -738,10 +773,17 @@ function renderFeedback(list) {
                             const date = (f.submitted_at || f.created_at)
                                 ? new Date(f.submitted_at || f.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
                                 : '—';
+                            const avgRating = (f.overall_rating + f.service_rating + f.value_rating + f.recommend_rating) / 4;
                             return `<tr>
                                 <td>
                                     <div style="font-weight:600">${esc(f.client_name || 'Client')}</div>
                                     <div class="sub-email">${esc(f.client_email || '')}</div>
+                                </td>
+                                <td>
+                                    <div class="fb-stars">${renderStars(avgRating)}</div>
+                                    <div style="font-size:11px;color:var(--muted);margin-top:2px;">
+                                        Overall: ${f.overall_rating} ★ | Service: ${f.service_rating} ★ | Value: ${f.value_rating} ★ | Recommend: ${f.recommend_rating} ★
+                                    </div>
                                 </td>
                                 <td><div class="fb-msg">${esc(f.message || f.feedback || '')}</div></td>
                                 <td><div class="fb-date">${date}</div></td>
@@ -766,7 +808,6 @@ async function loadAgentFeedback() {
     const H = { 'Authorization': `Bearer ${TOKEN}` };
     const container = document.getElementById('fbGroups');
     
-    // Show skeletons
     container.innerHTML = `
         <div class="fb-sk"></div>
         <div class="fb-sk"></div>
@@ -788,14 +829,13 @@ function renderAgentFeedback(list) {
     const container = document.getElementById('fbGroups');
     const now = new Date();
     
-    // Stats
     const thisMonth = list.filter(f => {
         const d = new Date(f.submitted_at || f.created_at);
         return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     }).length;
     
     document.getElementById('fbTotal').textContent = list.length;
-    document.getElementById('fbAgents').textContent = '—'; // Not relevant for agent
+    document.getElementById('fbAgents').textContent = '—';
     document.getElementById('fbMonth').textContent = thisMonth;
     
     if (!list.length) {
@@ -824,6 +864,7 @@ function renderAgentFeedback(list) {
                     <thead>
                         <tr>
                             <th>Client</th>
+                            <th>Ratings</th>
                             <th>Message</th>
                             <th>Date</th>
                         </tr>
@@ -833,10 +874,17 @@ function renderAgentFeedback(list) {
                             const date = (f.submitted_at || f.created_at)
                                 ? new Date(f.submitted_at || f.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
                                 : '—';
+                            const avgRating = (f.overall_rating + f.service_rating + f.value_rating + f.recommend_rating) / 4;
                             return `<tr>
                                 <td>
                                     <div style="font-weight:600">${esc(f.client_name || 'Client')}</div>
                                     <div class="sub-email">${esc(f.client_email || '')}</div>
+                                </td>
+                                <td>
+                                    <div class="fb-stars">${renderStars(avgRating)}</div>
+                                    <div style="font-size:11px;color:var(--muted);margin-top:2px;">
+                                        Overall: ${f.overall_rating} ★ | Service: ${f.service_rating} ★ | Value: ${f.value_rating} ★ | Recommend: ${f.recommend_rating} ★
+                                    </div>
                                 </td>
                                 <td><div class="fb-msg">${esc(f.message || f.feedback || '')}</div></td>
                                 <td><div class="fb-date">${date}</div></td>
@@ -882,6 +930,59 @@ function filterFeedback() {
     }
 }
 
+// ── CSV Download ──
+function downloadFeedbackCSV() {
+    if (!allFeedback || allFeedback.length === 0) {
+        toast('No feedback data to export.', 'err');
+        return;
+    }
+
+    const headers = [
+        'Client Name',
+        'Client Email',
+        'Agent Name',
+        'Agent Email',
+        'Overall Rating',
+        'Service Rating',
+        'Value Rating',
+        'Recommend Rating',
+        'Average Rating',
+        'Continue Booking',
+        'Message',
+        'Date'
+    ];
+
+    const rows = allFeedback.map(f => {
+        const avgRating = ((f.overall_rating || 0) + (f.service_rating || 0) + (f.value_rating || 0) + (f.recommend_rating || 0)) / 4;
+        const date = f.created_at ? new Date(f.created_at).toLocaleDateString('en-GB') : '';
+        return [
+            `"${(f.client_name || '').replace(/"/g, '""')}"`,
+            `"${(f.client_email || '').replace(/"/g, '""')}"`,
+            `"${(f.agent_name || '').replace(/"/g, '""')}"`,
+            `"${(f.agent_email || '').replace(/"/g, '""')}"`,
+            f.overall_rating || 0,
+            f.service_rating || 0,
+            f.value_rating || 0,
+            f.recommend_rating || 0,
+            avgRating.toFixed(1),
+            f.continue_booking || '',
+            `"${(f.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+            `"${date}"`
+        ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `feedback_export_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    toast('CSV downloaded successfully!', 'ok');
+}
+
 // ── Render agents ──
 function renderAgents(list) {
     const tbody = document.getElementById('agentsBody');
@@ -918,20 +1019,20 @@ function renderReports(list) {
         const ini    = initials(lead.name || 'CL');
         const date   = lead.created_at ? new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
         const tdate  = lead.travel_date || '—';
-        // Fix: Handle budget properly - check if it's a number or string
         let budget = '—';
         if (lead.budget) {
             const numBudget = parseFloat(lead.budget);
             if (!isNaN(numBudget) && numBudget > 0) {
                 budget = `£${numBudget.toLocaleString()}`;
             } else {
-                budget = lead.budget; // Show as is if not a number
+                budget = lead.budget;
             }
         }
         const dest   = esc(lead.destination || lead.concept || '—');
         const st     = lead.status || 'new';
         const stClass = st === 'closed' ? 'badge-closed' : st === 'contacted' ? 'badge-contacted' : 'badge-new';
-        const pdf    = lead.reportFile ? `/${lead.reportFile}` : null;
+        const pdf    = lead.reportFile ? `/${lead.reportFile}#view` : null;
+        
         return `<tr>
             <td style="color:var(--muted)">${i + 1}</td>
             <td><div class="cell-person"><div class="circle ${col}">${ini}</div><div><strong>${esc(lead.name || 'Client')}</strong><div class="sub-email">${esc(lead.email || '')}</div></div></div></td>

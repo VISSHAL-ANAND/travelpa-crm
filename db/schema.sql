@@ -36,7 +36,8 @@ CREATE TABLE clients (
     destination_specific TEXT,
     destination TEXT,
     budget TEXT,
-    travel_date TEXT,
+    travel_date TEXT,          -- Start date
+    travel_date_end TEXT,      -- ✅ NEW: End date for date range
     notes TEXT,
     status TEXT DEFAULT 'new',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())

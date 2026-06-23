@@ -15,10 +15,25 @@ app.use(cors());
 app.use(express.json());
 
 // ─── STATIC ROUTING ───
-app.use('/client', express.static(path.join(__dirname, 'feedback')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/client', express.static(path.join(__dirname, 'client')));
+app.use('/feedback', express.static(path.join(__dirname, 'feedback')));
 app.use(express.static(__dirname));
+
+// ─── SERVE PDF FILES ─── (Fixed - using regex instead of wildcard)
+app.get(/^\/Report_.*\.pdf$/, (req, res) => {
+    const fileName = req.path.substring(1);
+    const filePath = path.join(__dirname, fileName);
+    
+    if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="' + fileName + '"');
+        res.sendFile(filePath);
+    } else {
+        console.log('❌ PDF not found:', filePath);
+        res.status(404).send('PDF file not found');
+    }
+});
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'index.html'));
@@ -224,14 +239,12 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/admin/agents', requireAuth('admin'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        // Get all agents
         const { data: agents, error: agentsErr } = await supabase
             .from('agents')
             .select('id, agent_name, email');
 
         if (agentsErr) throw agentsErr;
 
-        // Get client count for each agent
         const agentsWithCount = await Promise.all(agents.map(async (agent) => {
             const { count, error: countErr } = await supabase
                 .from('clients')
@@ -780,7 +793,8 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                                     ? userData.destinationVibes.join(', ')
                                     : (userData.destination || null),
                     budget:      userData.nightlyBudget || null,
-                    travel_date: userData.travelDate    || null,
+                    travel_date: userData.travelDateStart || null,
+                    travel_date_end: userData.travelDateEnd || null,
                     notes:       Array.isArray(userData.specialDetails) && userData.specialDetails.length > 0
                                     ? userData.specialDetails.join(', ')
                                     : (userData.notes || null),
@@ -796,7 +810,7 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                 if (clientInsertErr) {
                     console.error('⚠️  Supabase client insert error:', clientInsertErr.message);
                 } else {
-                    console.log('✅ Client stored. customer_id:', clientInsert.customer_id);
+                    console.log('✅ Client stored. customer_id:', clientInsert.id);
                 }
 
             } catch (dbErr) {
@@ -848,7 +862,6 @@ function buildLeadObject(lead) {
         ? new Date(lead.created_at).toISOString().split('T')[0]
         : new Date().toISOString().split('T')[0];
     
-    // Parse budget correctly to avoid NaN
     let budget = lead.budget;
     if (budget && !isNaN(parseFloat(budget))) {
         budget = parseFloat(budget);
@@ -873,7 +886,8 @@ function buildOptionsText(d) {
 - Travel Party: ${arr(d.travelers)}
 - Date Flexibility: ${d.datesPreference || 'Not Specified'}
 - Stay Length: ${d.stayDuration || 'Not Specified'}
-- Target Departure Date: ${d.travelDate || 'Not Specified'}
+- Travel Date Start: ${d.travelDateStart || 'Not Specified'}
+- Travel Date End: ${d.travelDateEnd || 'Not Specified'}
 - Required Assistance: ${arr(d.helpNeeded)}
 - Special Occasions/Priorities: ${arr(d.specialDetails)}
 - Accommodation Style: ${d.travelStyle || 'Not Specified'}
@@ -978,7 +992,10 @@ function generateLeadPDF(userData, aiReportText) {
     doc.font('Helvetica').fontSize(9.5).fillColor('#4A5568');
     doc.text(`Region: ${userData.region || 'Not Specified'}`, 320, metaY + 18);
     doc.text(`Destination: ${userData.destination_specific || 'Not Specified'}`, 320, metaY + 32);
-    doc.text(`Target Date: ${userData.travelDate || 'Not Specified'}`, 320, metaY + 46);
+    const dateRange = userData.travelDateStart && userData.travelDateEnd 
+        ? `${userData.travelDateStart} — ${userData.travelDateEnd}` 
+        : userData.travelDateStart || 'Not Specified';
+    doc.text(`Travel Dates: ${dateRange}`, 320, metaY + 46);
     doc.text(`Duration: ${userData.stayDuration || 'Not Specified'}`, 320, metaY + 60);
     doc.text(`Nightly Budget: £${userData.nightlyBudget || 'Not Specified'}`, 320, metaY + 74);
 
@@ -998,6 +1015,7 @@ function generateLeadPDF(userData, aiReportText) {
     doc.text(`• Region: ${userData.region || 'Not Specified'}`,             { lineGap: 4, width: 485 });
     doc.text(`• Destination: ${userData.destination_specific || 'Not Specified'}`, { lineGap: 4, width: 485 });
     doc.text(`• Group Setup: ${arr(userData.travelers)}`,                   { lineGap: 4, width: 485 });
+    doc.text(`• Travel Dates: ${dateRange || 'Not Specified'}`,             { lineGap: 4, width: 485 });
     doc.text(`• Service Requests: ${arr(userData.helpNeeded)}`,             { lineGap: 4, width: 485 });
     doc.text(`• Priorities & Occasions: ${arr(userData.specialDetails)}`,   { lineGap: 4, width: 485 });
     doc.text(`• UK Departure Airport: ${userData.ukBaseLocation || 'Not Specified'}`, { lineGap: 4, width: 485 });
