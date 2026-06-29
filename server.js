@@ -36,7 +36,7 @@ app.get(/^\/Report_.*\.pdf$/, (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'index.html'));
+    res.redirect('/client/client_UI.html');
 });
 
 // ─── GEMINI INIT ───
