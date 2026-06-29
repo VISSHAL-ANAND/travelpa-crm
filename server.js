@@ -1041,8 +1041,8 @@ const PORT = process.env.PORT || 5005;
 
 resolveAdminId().then(() => {
     app.listen(PORT, () => {
-        console.log(`\n🚀 Server running on http://127.0.0.1:${PORT}`);
-        console.log(`   Client Portal: http://127.0.0.1:${PORT}/client/client_UI.html`);
-        console.log(`   Admin Portal:  http://127.0.0.1:${PORT}/admin/login.html\n`);
+        console.log(`\n🚀 Server running on https://travelpa-crm.onrender.com/`);
+        console.log(`   Client Portal: https://travelpa-crm.onrender.com/client/client_UI.html`);
+        console.log(`   Admin Portal:  https://travelpa-crm.onrender.com/admin/login.html\n`);
     });
 });
