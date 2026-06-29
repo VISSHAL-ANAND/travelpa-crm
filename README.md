@@ -301,14 +301,13 @@ TRAVEL-PA_CRM/
 │
 ├── client/                  # Client-facing pages
 │   ├── client_UI.html       # Main client interface
-│   ├── feedback.html        # Feedback form
-│   └── index.html           # Landing page
+│   └── feedback.html        # Feedback form
 │
 ├── db/                      # Database
 │   └── schema.sql           # Database schema & tables
 │
 ├── assets/                  # Static assets
-│   └── (styles, images, etc.)
+│   └── logo.png             # Logo image
 │
 └── node_modules/            # Installed dependencies (auto-generated)
 ```
