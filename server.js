@@ -173,6 +173,7 @@ app.post('/api/auth/login', async (req, res) => {
     const { role, email, password } = req.body;
 
     if (role === 'admin') {
+        console.log('🔐 Admin login attempt - comparing:', { incoming: password, expected: ADMIN_PASSWORD, match: password === ADMIN_PASSWORD });
         if (password === ADMIN_PASSWORD) {
             return res.status(200).json({
                 success: true,
